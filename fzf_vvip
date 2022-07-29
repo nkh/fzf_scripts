@@ -1,0 +1,12 @@
+#!/bin/bash
+
+cat | plc --values | \
+fzf -e -m --info=inline --ansi --color="hl:51" --no-sort --layout=reverse-list --color="header:39" "${@}" \
+	--bind='alt-k:preview-up' --bind='alt-j:preview-down' \
+	--bind='?:toggle-preview' \
+	--preview-window='right:50%' \
+	--preview '\
+		file={} ;
+		[[ -d {} ]] && ls -AgGh --group-directories-first --color=always {} || \
+		{ perl -le "if (-B \$ARGV[0]) { exit 1 } else { exit 0 }" -- {} && vimkat {} 100 -1 || { file {} | piper "[^,]+" "grey20" ",.*" "grey10" ; } ; } '
+

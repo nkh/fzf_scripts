@@ -1,0 +1,4 @@
+#!/bin/bash
+(([[ -t 0 ]] && fd --type f -H --color=always) || cat) | \
+	rg -v '.git(\u001B\[[0-9;m]+)*/' $* | \
+		fzfp -e -m --info=inline --cycle --ansi --preview 'bat --line-range 0:150 --tabs=4 -n --color=always {}' --preview-window='top:50%' --color="hl:51" 

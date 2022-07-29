@@ -1,0 +1,3 @@
+#!/bin/bash
+(([[ -t 0 ]] && fd --type f -H --color=always) || cat) | rg -L -v '.git(\u001B\[[0-9;m]+)*/' | \
+	fzf -e -m --info=inline --layout=reverse $* --ansi --preview 'vimkat {}' --color="hl:51" 

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+nmcli -d wifi rescan 2> /dev/null
+nmcli --color yes device wifi | fzf --ansi -m --cycle --reverse --info=inline --color=hl+:214,hl:214
+

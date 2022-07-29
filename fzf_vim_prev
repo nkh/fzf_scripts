@@ -1,0 +1,6 @@
+#!/bin/bash
+[[ -d $1 ]] && ls -AgGh --group-directories-first --color=always $1 || script -o 100000 -qfc "vim -R --cmd 'set shortmess+=sSF t_ti= t_te=' +50 +redraw +q  $1" | perl -pe '$. == 1 && s/^.*[0-9]C//'  
+
+# usage
+#fzf_vim_prev()  { fzf  -e -m --info=inline --layout=reverse --ansi --color="hl:51" --preview 'fzf_vim_prev {}' ; }
+

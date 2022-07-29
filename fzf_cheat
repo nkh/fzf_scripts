@@ -1,0 +1,19 @@
+#!/bin/bash -i
+
+file=$1
+path=$(c --path $file) 
+
+[[ ! -e "$path" ]] && echo $0: error: file "'$file'" not found in "'$(c)'" && exit 1
+
+c --cat $1 | perl -ne '/^#/ && chomp && print "$_ <$.>\n"' | \
+fzf -e -m --info=inline --ansi --color="hl:51" --no-sort --layout=reverse-list \
+	--bind='alt-k:preview-up' --bind='alt-j:preview-down' \
+	--bind='?:toggle-preview' \
+	--preview-window='top:60%' \
+	--preview '\
+		line=$( echo {} | perl -ne "/<([0-9]+)>\$/; print \$1" ) && \
+		[[ -n "$line" ]] && echo "'$file'" && \
+		bat  --theme="TwoDark" --tabs=4 -n --color=always "'$path'" -r $line: | piper "#" blue {q} green'
+
+echo $path
+

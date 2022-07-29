@@ -1,0 +1,12 @@
+#!/bin/bash
+
+cat | plc --values | \
+fzf -e -m --info=inline --ansi --color="hl:51" --no-sort --layout=reverse-list --color="header:39" "${@}" \
+	--bind='alt-k:preview-up' --bind='alt-j:preview-down' \
+	--bind='?:toggle-preview' \
+	--preview-window='right:50%' \
+	--preview '\
+		file=$(arg_n 1 {}) line=$(arg_n 2 {}) line=${line:-1} && \
+		echo "$file" | plc && \
+			[[ ! -d "$file" ]] && bat --theme="TwoDark" --highlight-line $line --tabs=4 -n --color=always "$file" -r $(minus_limit $line 4 1): \
+			|| ls -AgGh --group-directories-first --color=always "$file"'

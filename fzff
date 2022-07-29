@@ -1,0 +1,12 @@
+#!/bin/bash
+rg -v '.git(\u001B\[[0-9;m]+)*/' --no-heading -n --color=always --colors 'match:style:nobold' --colors 'match:fg:white' | \
+	fzf -e -m --info=inline --ansi --color="hl:51" --no-sort --layout=reverse-list \
+		--preview-window='top:50%' \
+		--bind='alt-k:preview-up,alt-p:preview-up' \
+		--bind='alt-j:preview-down,alt-n:preview-down' \
+		--bind='?:toggle-preview' \
+		--preview '\
+			file=$(arg_n 1 {}) line=$(arg_n 2 {}) && \
+			echo "$file" | plc && \
+			bat --theme="TwoDark" --highlight-line $line --tabs=4 -n --color=always "$file" \
+				-r $(minus_limit $line 4 1):'

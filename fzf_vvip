@@ -1,12 +1,22 @@
 #!/bin/bash
 
 cat | plc --values | \
-fzf -e -m --info=inline --ansi --color="hl:51" --no-sort --layout=reverse-list --color="header:39" "${@}" \
-	--bind='alt-k:preview-up' --bind='alt-j:preview-down' \
-	--bind='?:toggle-preview' \
-	--preview-window='right:50%' \
+	fzf \
+	-e \
+	-m \
+	--no-sort \
+	--ansi \
+	--layout=reverse-list \
+	--info=inline \
+	--color="hl:51,header:238,bg+:236" \
+	--header 'ᵃj-down ᵃk-up ?-preview ^select ^deselect ^toggle ^p-size' \
+	--bind 'alt-k:preview-up,alt-j:preview-down' \
+	--bind '?:toggle-preview' \
+	--bind 'ctrl-s:select-all,ctrl-d:deselect-all,ctrl-t:toggle-all' \
+	--bind 'ctrl-p:change-preview-window(75%|right,up|50%,hidden|right)' \
+	--preview-window='right:60%' \
+ 	"${@}" \
 	--preview '\
-		file={} ;
 		[[ -d {} ]] && ls -AgGh --group-directories-first --color=always {} || \
-		{ perl -le "if (-B \$ARGV[0]) { exit 1 } else { exit 0 }" -- {} && vimkat {} 100 -1 || { file {} | piper "[^,]+" "grey20" ",.*" "grey10" ; } ; } '
+		{ perl -le "exit -B \$ARGV[0]" -- {} && vimkat {} 100 -1 || { file {} | piper "[^,]+" "grey20" ",.*" "grey10" ; } ; } '
 

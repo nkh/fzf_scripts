@@ -1,0 +1,96 @@
+#!/bin/bash
+
+# create pipes and tree cache
+PIPE_IN=$(mktemp -u) && mkfifo $PIPE_IN && eval "exec 3<>$PIPE_IN" || echo ft: error creating named pipe IN
+PIPE_OUT=$(mktemp -u) && mkfifo $PIPE_OUT && eval "exec 4<>$PIPE_OUT" || echo ft: error creating named pipe OUT
+TREE_CACHE=$(mktemp -u)
+export TREE_CACHE PIPE_IN PIPE_OUT
+
+# generate the tree once
+tree_cache() { [[ "$1" ]] && tree "$1" -C --noreport | sed '1d' | sed 's/^[ \t]*//' >$TREE_CACHE || cat $TREE_CACHE ; }
+
+# run query on cached tree and add paths where necessary
+ftree() 
+{
+GREEN=$'\033[32m'
+RESET=$'\033[0m'
+
+tree_cache | \
+{ [[ "$2" == '.' || -z "$2" ]] && { perl -ne 'print "'$GREEN'$.-'$RESET'$_"' ; true ; } || { rg "$2" -i -n --color=always --colors 'match:fg:17' --colors 'match:bg:226' -A 2 ; } | \
+add_path "$3" "$4" ; }
+}
+
+# add path for each match
+add_path()
+{
+found_path=0
+
+while read -r STDIN
+	do
+		[[ $found_path == 1 ]] \
+			&& { [[ "$STDIN" =~ ^-- ]] && found_path=0 ; true ; } \
+			|| { [[ "$STDIN" =~ $'\e'\[32m([0-9]+) ]] && echo "${BASH_REMATCH[1]}" >"$1" ; read P <"$2" ; echo "$P" ; found_path=1 ; }  
+		
+		echo "$STDIN"
+	done
+}
+
+# given a tree entry get path to entry
+get_path() { [[ "$1" =~ (^[0-9]+)[^[:alnum:]]*(.*) ]] && { echo "${BASH_REMATCH[1]}" >"$2" ; read P <"$3" ; echo $P"${BASH_REMATCH[2]}" ; } ; }
+
+# make function available in sub processes
+export -f tree_cache ftree add_path get_path
+
+# if search is known get full cache otherwise build it progressibely to present a displaying faster
+path="$(realpath "${1:-$PWD}")" ; search="$2"
+[[ -n "$search" ]] && { tree "$path" -C --noreport > $TREE_CACHE ; true ; } || { tree_cache "$path" & }
+
+# create lookup entries to path once
+perl -e 'use strict; use warnings; open(INFO, $ARGV[0]); chomp(my @lines = <INFO>);'\
+'open(my $in, "$ARGV[1]") ;'\
+'open(my $out, ">", "$ARGV[2]"); select $out ; $| = 1 ;'\
+'while(my $x=<$in>) { chomp $x ; print "$lines[ $x - 1 ]/\n"}' \
+	<( tree -i -f -n --noreport "$path" | sed '1d' | tr "\n" "\0" | xargs -0 dirname ) $PIPE_IN $PIPE_OUT &
+
+# run fzf with full bling
+results=$(
+	FZF_DEFAULT_COMMAND="ftree '$path' '$search' $PIPE_IN $PIPE_OUT" fzf \
+	-e \
+	-m \
+	--cycle \
+	--disabled \
+	--no-sort \
+ 	--ansi \
+	--layout=reverse \
+	--info=inline \
+	--color="hl:51,header:238,bg+:236" \
+	--prompt '1. rg> ' \
+	--header '^rg ^fzf ᵃj-down ᵃk-up ?-preview ^select ^deselect ^toggle ^p-size' \
+	--bind "change:reload:sleep 0.1; ftree '$path' {q} $PIPE_IN $PIPE_OUT || true" \
+	--bind 'ctrl-f:unbind(change,ctrl-f)+change-prompt(2. fzf> )+enable-search+clear-query+rebind(ctrl-r)' \
+	--bind "ctrl-r:unbind(ctrl-r)+change-prompt(1. rg> )+disable-search+reload(ftree '$path' {q} $PIPE_IN $PIPE_OUT || true)+rebind(change,ctrl-f)" \
+	--bind 'alt-k:preview-up,alt-j:preview-down' \
+	--bind '?:toggle-preview' \
+	--bind 'ctrl-s:select-all,ctrl-d:deselect-all' \
+	--expect=ctrl-t \
+	--bind 'ctrl-p:change-preview-window(75%|right,up|50%,hidden|right)' \
+	--preview-window='right:60%' \
+	--preview '
+		P="$(get_path {} $PIPE_IN $PIPE_OUT)" ;\
+		[[ -n "$P" ]] && \
+			{ \
+			[[ -d "$P" ]] && ls -AgGh --group-directories-first --color=always "$P" || \
+			{ perl -e "exit -B \$ARGV[0]" -- "$P" && vimkat "$P" 100 -1 || { file "$P" | piper "[^,]+" "grey20" ",.*" "grey10" ; } ; } \
+			}' 
+	)
+
+#handle user pressing ctrl-t
+fzf_in_tab(){ [[ "$1" == ctrl-t ]] && in_tab=1 || { in_tab=0 ; false ; } ; }
+
+# convert user tree choice to path
+while read p ; do fzf_in_tab "$p" && continue ; get_path "$p" $PIPE_IN $PIPE_OUT ; done<<<"$results"
+
+# cleanup files
+rm $TREE_CACHE $PIPE_IN $PIPE_OUT
+
+

@@ -33,6 +33,6 @@ FZF_DEFAULT_COMMAND="frl '' $frf_max_depth" fzf$2 \
 	--preview-window='right:60%' \
 	--preview '\
 		[[ -d {} ]] && ls -AgGh --group-directories-first --color=always {} || \
-		{ perl -e "exit -B \$ARGV[0]" -- {} && vimkat {} 100 -1 || { file {} | piper "[^,]+" "grey20" ",.*" "grey10" ; } ; } ' \
+		{ perl -e "exit -B \$ARGV[0]" -- {} && tvcat {} 100 -1 || { file {} | piper "[^,]+" "grey20" ",.*" "grey10" ; } ; } ' \
 	# --bind "enter:become:vim {1} +{2}"
 

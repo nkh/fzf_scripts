@@ -80,7 +80,7 @@ results=$(
 		[[ -n "$P" ]] && \
 			{ \
 			[[ -d "$P" ]] && ls -AgGh --group-directories-first --color=always "$P" || \
-			{ perl -e "exit -B \$ARGV[0]" -- "$P" && vimkat "$P" 100 -1 || { file "$P" | piper "[^,]+" "grey20" ",.*" "grey10" ; } ; } \
+			{ perl -e "exit -B \$ARGV[0]" -- "$P" && tvcat "$P" 100 -1 || { file "$P" | piper "[^,]+" "grey20" ",.*" "grey10" ; } ; } \
 			}' 
 	)
 

@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
-fail() {
-    echo "$1" >&2
-    exit 2
-}
+# takes stdin and puts it in a temporary file if necessary
+# tmux popup, where picking is done, using temporary file to make it look like local
+
+# arguments can be passed to control popup size
+
+
+fail() { echo "$1" >&2 ; exit 2 ; }
 
 fzf=$(command -v fzf 2>/dev/null) || fzf=$(dirname $0)/fzf
 [[ -x "$fzf" ]] || fail 'fzf executable not found'
@@ -60,9 +63,7 @@ pstdout="${TMPDIR:-/tmp}/fzf-pstdout-$id"
 
 clean_cmd="command rm -f $cmd_file $pstdin $pstdout"
 
-cleanup() {
-    eval "$clean_cmd"
-}
+cleanup() { eval "$clean_cmd" ; }
 trap 'cleanup' EXIT
 
 mkfifo "$pstdout"
@@ -70,10 +71,10 @@ mkfifo "$pstdout"
 echo -n "trap '$clean_cmd' EXIT SIGINT SIGTERM SIGHUP;" >"$cmd_file"
 
 if [[ -t 0 ]]; then
-    echo -n "$fzf $opts > $pstdout" >>"$cmd_file"
+    echo -n "$fzf $opts >$pstdout" >>"$cmd_file"
 else
     mkfifo "$pstdin"
-    echo -n "$fzf $opts < $pstdin > $pstdout" >>"$cmd_file"
+    echo -n "$fzf $opts <$pstdin >$pstdout" >>"$cmd_file"
     cat <&0 >"$pstdin" &
 fi
 cat "$pstdout" &

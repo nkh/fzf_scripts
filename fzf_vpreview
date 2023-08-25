@@ -1,6 +1,8 @@
 #!/bin/bash
 
-cat | plc --values | \
+# parse stdin for /path/path/entry and chose from list, preview as file
+
+plc --values | \
 fzf -e -m --info=inline --ansi --color="hl:51" --no-sort --layout=reverse-list --color="header:39" "${@}" \
 	--bind='alt-k:preview-up' --bind='alt-j:preview-down' \
 	--bind='?:toggle-preview' \

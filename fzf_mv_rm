@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# remove from list of destinations for fzf_mv command
+
 fzf_mv_rc=$HOME/.fzf_mv_rc
 fzf_opt="-p 90% --cycle --reverse --info=inline --color=hl+:214,hl:214 --tac -m --ansi"
 

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# pick line from files, with preview
+
 arg_n() { perl -e 'print [split /(?<!:):(?!:)/, $ARGV[1]]->[$ARGV[0] - 1]' $1 "$2" ; }
 export -f arg_n
 

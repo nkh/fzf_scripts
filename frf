@@ -1,14 +1,17 @@
 #!/bin/bash
+
+# pick files from list using rg instead for fzf fuzzy matching
+
+# Arguments
+frf_max_depth="${1:-1000}"
+# $2 can be set to "-tmux", and options, to open frf in fzf-tmux
+# $3 controls if option --expect=ctrl-t is used or not
+
 TMP_DIR=/tmp/rg-fzf
 mkdir -p "$TMP_DIR" 
 
 PID=$$
 frf_f="$TMP_DIR/frf_f_$PID"
-frf_r="$TMP_DIR/frf_r_$PID"
-
-frf_max_depth="${1:-1000}"
-# $2 can be set to "-tmux", and options, to open frf in fzf-tmux
-# $3 controls if option --expect=ctrl-t is used or not
 
 FZF_DEFAULT_COMMAND="frl '' $frf_max_depth" fzf$2 \
 	-e \

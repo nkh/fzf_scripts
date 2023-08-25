@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# pick from list of destinations where files passes as arguments should be moves
+
 fzf_mv_rc=$HOME/.fzf_mv_rc
 
 [[  "$1" ]] || { echo "fzf_mv: error: no files to move" >&2 ; exit 1 ; }

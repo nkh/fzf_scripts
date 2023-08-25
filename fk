@@ -1,14 +1,20 @@
 #!/bin/bash
 
-# default to sigterm -15
+# pick pids to send signals to
+
+# default signal: sigterm -15 or pass as first argumment
 SIGCODE=-${1:-15}
 
-pid=$(ps -ef \
-	| sed 1d \
-	| eval "fzf ${FZF_DEFAULT_OPTS} -m --header='[kill:process:$SIGCODE]'" \
-	| awk '{print $2}')
+# if called as 'fkk', will call itself again and again till Ctl-c
 
-if [[ -n $pid ]]; then
-  echo $pid | xargs kill $SIGCODE
+fzf_cmd="fzf ${FZF_DEFAULT_OPTS} -m --header='[kill:process:$SIGCODE]'" 
+
+echo $fzf_cmd
+eval "echo $fzf_cmd"
+
+pids=$(ps -ef | sed 1d | eval "$fzf_cmd" | awk '{print $2}')
+
+if [[ -n $pids ]]; then
+  echo $pids | xargs kill $SIGCODE
   [[ $0 == fkk ]] && $0
 fi

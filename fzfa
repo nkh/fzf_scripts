@@ -1,3 +1,6 @@
 #!/bin/bash
-fzf -m -x | tr '\n' '\0' | xargs -r0 "$@"
+
+# pick files and pass them as arguments to command passed as this scripts arguments
+
+fd --color=always | sed 's/.\///' | fzf --ansi -m -x | tr '\n' '\0' | xargs -r0 "$@"
 

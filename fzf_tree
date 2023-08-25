@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# displays tree and pick file 
+
 # create pipes and tree cache
 PIPE_IN=$(mktemp -u) && mkfifo $PIPE_IN && eval "exec 3<>$PIPE_IN" || echo ft: error creating named pipe IN
 PIPE_OUT=$(mktemp -u) && mkfifo $PIPE_OUT && eval "exec 4<>$PIPE_OUT" || echo ft: error creating named pipe OUT

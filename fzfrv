@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # functions moved in a script so they can be used by fzf preview
+
 match=$( fzfr )
 [[ -z "$match" ]] && exit
 
@@ -9,6 +10,6 @@ while read l ; do
 	files+=("+tabnew +$(arg_n 2 "$l") $(arg_n 1 "$l")")
 done <<< "$match"
 
-vi $(tempfile) ${files[@]} +tabnext +q
+vi $(mktemp) ${files[@]} +tabnext +q
 
 

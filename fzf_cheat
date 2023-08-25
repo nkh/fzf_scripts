@@ -1,6 +1,9 @@
 #!/bin/bash -i
 
-file=$1
+# pick a chect from one of the cheats pages
+# output the cheat's name and line and the cheats full path
+
+file=$1 # cheat sheet
 path=$(c --path $file) 
 
 [[ ! -e "$path" ]] && echo $0: error: file "'$file'" not found in "'$(c)'" && exit 1

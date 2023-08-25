@@ -1,4 +1,9 @@
 #!/usr/bin/bash
+
+#finds files matching arguments and colors them
+
+# Arguments
+# $1 regexp passed to rg
 frl_max_depth="${2:-1000}"
 
 { 

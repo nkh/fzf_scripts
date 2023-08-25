@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# add to list of destinations for fzf_mv command
+
 fzf_mv_rc=$HOME/.fzf_mv_rc
 [[ -e "$fzf_mv_rc" ]] || { echo "fzf_mv: error: can't find '$fzf_mv_rc'" >&2 ; exit 1 ; }
 

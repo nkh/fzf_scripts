@@ -1,7 +1,10 @@
 #!/bin/bash
 
-cat | plc --values | \
-fzf -e -m --info=inline --ansi --color="hl:51,hl+:51" --no-sort --layout=reverse-list --color="header:39" \
+# parse stdin for /path/path/entries
+# pick with preview
+
+plc --values | \
+fzf -m --info=inline --ansi --color="hl:51,hl+:51" --no-sort --layout=reverse-list --color="header:39" \
 	--bind='alt-k:preview-up' --bind='alt-j:preview-down' \
 	--bind='?:toggle-preview' \
 	--preview-window='top:50%' "${@}" \

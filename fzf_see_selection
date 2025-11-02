@@ -1,0 +1,11 @@
+fzf --multi --preview-window 'nohidden' \
+	--header="Type search characters. Use CTRL-T to toggle stat details view, CTRL-C to Cancel" \
+	--border \
+	--border-label=" Multi File selector with stat preview" \
+	--preview 'cat {+f}' \
+	--preview-window 'top' \
+	--prompt "MultiSelect preview [search list] " \
+	--bind 'ctrl-t:transform:[[ ! {fzf:prompt} =~ MultiSelect ]] &&
+		echo "change-prompt(MultiSelect List Preview [search list]: )+change-preview:cat \{+f}" ||
+		echo "change-prompt(File stat info [search list]: )+change-preview:stat \{}"'
+
